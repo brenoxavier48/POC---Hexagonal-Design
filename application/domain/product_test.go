@@ -1,9 +1,9 @@
-package application_test
+package domain_test
 
 import (
 	"errors"
 
-	"github.com/brenoxavier48/POC---Hexagonal-Design/application"
+	domain "github.com/brenoxavier48/POC---Hexagonal-Design/application/domain"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -14,15 +14,15 @@ import (
 func TestProduct_Enable(t *testing.T) {
 	tests := []struct {
 		name        string
-		product     application.Product
+		product     domain.Product
 		expectedErr error
 	}{{
 		name:        "return error if price is zero",
-		product:     application.Product{Price: 0},
+		product:     domain.Product{Price: 0},
 		expectedErr: errors.New("ENABLE ERROR: price should be greater then zero"),
 	}, {
 		name:        "enable product if price is greater then zero",
-		product:     application.Product{Price: 1},
+		product:     domain.Product{Price: 1},
 		expectedErr: nil,
 	}}
 
@@ -32,11 +32,11 @@ func TestProduct_Enable(t *testing.T) {
 
 			if tt.expectedErr != nil {
 				assert.Equal(t, tt.expectedErr, err)
-				assert.Equal(t, application.DISABLED, tt.product.Status)
+				assert.Equal(t, domain.DISABLED, tt.product.Status)
 				return
 			}
 
-			assert.Equal(t, application.ENABLED, tt.product.Status)
+			assert.Equal(t, domain.ENABLED, tt.product.Status)
 		})
 	}
 }
@@ -44,15 +44,15 @@ func TestProduct_Enable(t *testing.T) {
 func TestProduct_Disable(t *testing.T) {
 	tests := []struct {
 		name        string
-		product     application.Product
+		product     domain.Product
 		expectedErr error
 	}{{
 		name:        "return error if product has a price greater then zero",
-		product:     application.Product{Price: 1},
+		product:     domain.Product{Price: 1},
 		expectedErr: errors.New("DISABLE ERROR: price should be zero"),
 	}, {
 		name:        "return nil if product has price equals to zero",
-		product:     application.Product{Price: 0},
+		product:     domain.Product{Price: 0},
 		expectedErr: nil,
 	}}
 
@@ -66,7 +66,7 @@ func TestProduct_Disable(t *testing.T) {
 			}
 
 			require.Nil(t, err)
-			assert.Equal(t, application.DISABLED, tt.product.Status)
+			assert.Equal(t, domain.DISABLED, tt.product.Status)
 		})
 	}
 }
@@ -74,31 +74,31 @@ func TestProduct_Disable(t *testing.T) {
 func TestProduct_IsValid(t *testing.T) {
 	tests := []struct {
 		name        string
-		product     application.Product
+		product     domain.Product
 		expectedErr string
 	}{{
 		name:        "return error if status is empty",
-		product:     application.Product{Status: "invalid status"},
+		product:     domain.Product{Status: "invalid status"},
 		expectedErr: "product has to have a valid status",
 	}, {
 		name:        "return error if status is different then enable or disable",
-		product:     application.Product{Status: "invalid status"},
+		product:     domain.Product{Status: "invalid status"},
 		expectedErr: "product has to have a valid status",
 	}, {
 		name:        "return error if price is lower then zero",
-		product:     application.Product{Status: application.ENABLED, Price: -1},
+		product:     domain.Product{Status: domain.ENABLED, Price: -1},
 		expectedErr: "price is lower then zero",
 	}, {
 		name:        "return error if id is not valid",
-		product:     application.Product{Status: application.ENABLED, Price: 0, Name: "p1"},
+		product:     domain.Product{Status: domain.ENABLED, Price: 0, Name: "p1"},
 		expectedErr: "ID: non zero value required",
 	}, {
 		name:        "return error if name is missing",
-		product:     application.Product{Status: application.ENABLED, Price: 0, ID: uuid.New().String()},
+		product:     domain.Product{Status: domain.ENABLED, Price: 0, ID: uuid.New().String()},
 		expectedErr: "Name: non zero value required",
 	}, {
 		name:        "return true if product is validated",
-		product:     application.Product{Status: application.ENABLED, Price: 0, ID: uuid.New().String(), Name: "p1"},
+		product:     domain.Product{Status: domain.ENABLED, Price: 0, ID: uuid.New().String(), Name: "p1"},
 		expectedErr: "",
 	}}
 
