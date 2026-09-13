@@ -2,8 +2,9 @@ package application
 
 import (
 	"errors"
+	"fmt"
 
-	"github.com/google/uuid"
+	"github.com/asaskevich/govalidator"
 )
 
 type IProduct interface {
@@ -18,14 +19,27 @@ const (
 )
 
 type Product struct {
-	ID     uuid.UUID
-	Name   string
-	Status string
-	Price  float32
+	ID     string  `valid:"required,uuid"`
+	Name   string  `valid:"required"`
+	Status string  `valid:"required"`
+	Price  float32 `valid:"float32,optional"`
 }
 
 func (p *Product) IsValid() (bool, error) {
-	return false, nil
+	if p.Status != ENABLED && p.Status != DISABLED {
+		return false, errors.New("product has to have a valid status")
+	}
+
+	if p.Price < 0 {
+		return false, errors.New("price is lower then zero")
+	}
+
+	if result, err := govalidator.ValidateStruct(p); err != nil {
+		fmt.Println(result)
+		return false, err
+	}
+
+	return true, nil
 }
 
 func (p *Product) Enable() error {
@@ -39,5 +53,10 @@ func (p *Product) Enable() error {
 }
 
 func (p *Product) Disable() error {
+	if p.Price != 0 {
+		return errors.New("DISABLE ERROR: price should be zero")
+	}
+	p.Status = DISABLED
+
 	return nil
 }
