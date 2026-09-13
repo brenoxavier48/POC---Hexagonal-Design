@@ -1,6 +1,10 @@
 package application
 
-import "github.com/google/uuid"
+import (
+	"errors"
+
+	"github.com/google/uuid"
+)
 
 type IProduct interface {
 	IsValid() (bool, error)
@@ -25,6 +29,12 @@ func (p *Product) IsValid() (bool, error) {
 }
 
 func (p *Product) Enable() error {
+	if p.Price <= 0 {
+		p.Status = DISABLED
+		return errors.New("ENABLE ERROR: price should be greater then zero")
+	}
+	p.Status = ENABLED
+
 	return nil
 }
 
