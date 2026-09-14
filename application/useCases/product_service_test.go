@@ -129,3 +129,123 @@ func TestProductService_Create(t *testing.T) {
 		})
 	}
 }
+
+func TestProductService_Enable(t *testing.T) {
+	tests := []struct {
+		name               string
+		product            domain.IProduct
+		setupMock          func(*mocks.MockProductPersistence) error
+		expectedProductErr string
+	}{{
+		name:               "return err if product invalid to enable",
+		product:            &domain.Product{},
+		setupMock:          func(persistence *mocks.MockProductPersistence) error { return nil },
+		expectedProductErr: "ENABLE ERROR: price should be greater then zero",
+	}, {
+		name:    "return err if database fails",
+		product: &domain.Product{Price: 2.0},
+		setupMock: func(persistence *mocks.MockProductPersistence) error {
+			expectedError := errors.New("database error")
+			persistence.
+				On("Save", mock.Anything).
+				Return(expectedError)
+			return expectedError
+		},
+		expectedProductErr: "",
+	}, {
+		name:    "enable product if persistence works",
+		product: &domain.Product{Price: 2.0},
+		setupMock: func(persistence *mocks.MockProductPersistence) error {
+			persistence.
+				On("Save", mock.Anything).
+				Return(nil)
+			return nil
+		},
+		expectedProductErr: "",
+	}}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			persistence := new(mocks.MockProductPersistence)
+			expectedPersistenceErr := tt.setupMock(persistence)
+
+			service := usecase.NewProductService(persistence)
+
+			err := service.Enable(tt.product)
+
+			if tt.expectedProductErr != "" {
+				assert.Equal(t, tt.expectedProductErr, err.Error())
+				persistence.AssertNotCalled(t, "Save")
+				return
+			}
+
+			defer persistence.AssertNumberOfCalls(t, "Save", 1)
+			if expectedPersistenceErr != nil {
+				assert.Equal(t, expectedPersistenceErr, err)
+				return
+			}
+
+			assert.Nil(t, err)
+		})
+	}
+}
+
+func TestProductService_Disable(t *testing.T) {
+	tests := []struct {
+		name               string
+		product            domain.IProduct
+		setupMock          func(*mocks.MockProductPersistence) error
+		expectedProductErr string
+	}{{
+		name:               "return err if product invalid to disable",
+		product:            &domain.Product{Price: 2.0},
+		setupMock:          func(persistence *mocks.MockProductPersistence) error { return nil },
+		expectedProductErr: "DISABLE ERROR: price should be zero",
+	}, {
+		name:    "return err if database fails",
+		product: &domain.Product{},
+		setupMock: func(persistence *mocks.MockProductPersistence) error {
+			expectedError := errors.New("database error")
+			persistence.
+				On("Save", mock.Anything).
+				Return(expectedError)
+			return expectedError
+		},
+		expectedProductErr: "",
+	}, {
+		name:    "enable product if persistence works",
+		product: &domain.Product{Price: 0},
+		setupMock: func(persistence *mocks.MockProductPersistence) error {
+			persistence.
+				On("Save", mock.Anything).
+				Return(nil)
+			return nil
+		},
+		expectedProductErr: "",
+	}}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			persistence := new(mocks.MockProductPersistence)
+			expectedPersistenceErr := tt.setupMock(persistence)
+
+			service := usecase.NewProductService(persistence)
+
+			err := service.Disable(tt.product)
+
+			if tt.expectedProductErr != "" {
+				assert.Equal(t, tt.expectedProductErr, err.Error())
+				persistence.AssertNotCalled(t, "Save")
+				return
+			}
+
+			defer persistence.AssertNumberOfCalls(t, "Save", 1)
+			if expectedPersistenceErr != nil {
+				assert.Equal(t, expectedPersistenceErr, err)
+				return
+			}
+
+			assert.Nil(t, err)
+		})
+	}
+}

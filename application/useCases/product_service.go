@@ -33,3 +33,27 @@ func (ps *ProductServiceImpl) Create(name string, price float32) (domain.IProduc
 
 	return product, nil
 }
+
+func (ps *ProductServiceImpl) Enable(product domain.IProduct) error {
+	if err := product.Enable(); err != nil {
+		return err
+	}
+
+	if err := ps.persistence.Save(product); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (ps *ProductServiceImpl) Disable(product domain.IProduct) error {
+	if err := product.Disable(); err != nil {
+		return err
+	}
+
+	if err := ps.persistence.Save(product); err != nil {
+		return err
+	}
+
+	return nil
+}
