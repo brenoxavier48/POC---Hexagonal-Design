@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/asaskevich/govalidator"
+	"github.com/google/uuid"
 )
 
 type IProduct interface {
@@ -23,6 +24,13 @@ type Product struct {
 	Name   string  `valid:"required"`
 	Status string  `valid:"required"`
 	Price  float32 `valid:"float32,optional"`
+}
+
+func NewProduct() *Product {
+	return &Product{
+		ID:     uuid.New().String(),
+		Status: DISABLED,
+	}
 }
 
 func (p *Product) IsValid() (bool, error) {
