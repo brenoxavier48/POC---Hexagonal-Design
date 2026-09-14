@@ -26,10 +26,12 @@ type Product struct {
 	Price  float32 `valid:"float32,optional"`
 }
 
-func NewProduct() *Product {
+func NewProduct(name string, price float32) *Product {
 	return &Product{
 		ID:     uuid.New().String(),
 		Status: DISABLED,
+		Name:   name,
+		Price:  price,
 	}
 }
 
