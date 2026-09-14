@@ -8,6 +8,7 @@ import (
 	"github.com/brenoxavier48/POC---Hexagonal-Design/application/mocks"
 	usecase "github.com/brenoxavier48/POC---Hexagonal-Design/application/useCases"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
 func TestProductService_Get(t *testing.T) {
@@ -53,5 +54,78 @@ func TestProductService_Get(t *testing.T) {
 		}
 
 		assert.Equal(t, expectedProduct, product)
+	}
+}
+
+func TestProductService_Create(t *testing.T) {
+	tests := []struct {
+		name               string
+		productName        string
+		productPrice       float32
+		setupMock          func(*mocks.MockProductPersistence) error
+		expectedProductErr string
+	}{{
+		name:               "return err if product name is not valid",
+		productName:        "",
+		productPrice:       0,
+		setupMock:          func(persistence *mocks.MockProductPersistence) error { return nil },
+		expectedProductErr: "Name: non zero value required",
+	}, {
+		name:               "return err if product price is not valid",
+		productName:        "p1",
+		productPrice:       -1,
+		setupMock:          func(persistence *mocks.MockProductPersistence) error { return nil },
+		expectedProductErr: "price is lower then zero",
+	}, {
+		name:         "return err if persistence fails",
+		productName:  "p1",
+		productPrice: 0,
+		setupMock: func(persistence *mocks.MockProductPersistence) error {
+			expectedErr := errors.New("database error")
+			persistence.
+				On("Save", mock.Anything).
+				Return(expectedErr)
+			return expectedErr
+		},
+		expectedProductErr: "",
+	}, {
+		name:         "return product if persistence works",
+		productName:  "p1",
+		productPrice: 0,
+		setupMock: func(persistence *mocks.MockProductPersistence) error {
+			persistence.
+				On("Save", mock.Anything).
+				Return(nil)
+			return nil
+		},
+		expectedProductErr: "",
+	}}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			persistence := new(mocks.MockProductPersistence)
+			expectedPersistenceErr := tt.setupMock(persistence)
+
+			service := usecase.NewProductService(persistence)
+
+			product, err := service.Create(tt.productName, tt.productPrice)
+
+			if tt.expectedProductErr != "" {
+				assert.Equal(t, tt.expectedProductErr, err.Error())
+				persistence.AssertNotCalled(t, "Save")
+				assert.Nil(t, product)
+				return
+			}
+
+			defer persistence.AssertNumberOfCalls(t, "Save", 1)
+			if expectedPersistenceErr != nil {
+				assert.Equal(t, expectedPersistenceErr, err)
+				assert.Nil(t, product)
+				return
+			}
+
+			assert.Nil(t, err)
+			assert.NotNil(t, product)
+		})
 	}
 }
