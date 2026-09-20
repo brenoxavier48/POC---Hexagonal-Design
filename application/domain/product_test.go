@@ -117,3 +117,16 @@ func TestProduct_IsValid(t *testing.T) {
 		})
 	}
 }
+
+func TestProduct_GetProperties(t *testing.T) {
+	name := "Product name"
+	price := float32(23.2)
+	status := domain.ENABLED
+
+	product := domain.NewProduct(name, price)
+	product.Status = status
+
+	assert.Equal(t, name, product.GetName())
+	assert.Equal(t, status, product.GetStatus())
+	assert.Equal(t, price, product.GetPrice())
+}

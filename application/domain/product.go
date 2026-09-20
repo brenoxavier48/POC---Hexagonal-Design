@@ -12,6 +12,9 @@ type IProduct interface {
 	IsValid() (bool, error)
 	Enable() error
 	Disable() error
+	GetName() string
+	GetPrice() float32
+	GetStatus() string
 }
 
 const (
@@ -69,4 +72,16 @@ func (p *Product) Disable() error {
 	p.Status = DISABLED
 
 	return nil
+}
+
+func (p *Product) GetName() string {
+	return p.Name
+}
+
+func (p *Product) GetStatus() string {
+	return p.Status
+}
+
+func (p *Product) GetPrice() float32 {
+	return p.Price
 }
