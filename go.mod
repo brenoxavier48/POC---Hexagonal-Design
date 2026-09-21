@@ -8,6 +8,8 @@ require (
 	github.com/stretchr/testify v1.12.1
 )
 
+require github.com/DATA-DOG/go-sqlmock v1.5.2 // indirect
+
 require (
 	github.com/mattn/go-sqlite3 v1.14.52
 	github.com/stretchr/objx v0.5.3 // indirect
