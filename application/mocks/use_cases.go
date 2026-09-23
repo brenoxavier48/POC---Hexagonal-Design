@@ -21,3 +21,33 @@ func (m *MockProductPersistence) Save(product domain.IProduct) error {
 	args := m.Called(product)
 	return args.Error(0)
 }
+
+type MockProductService struct {
+	mock.Mock
+}
+
+func (mPS *MockProductService) Get(id string) (domain.IProduct, error) {
+	args := mPS.Called(0)
+
+	product, _ := args.Get(0).(domain.IProduct)
+
+	return product, args.Error(1)
+}
+
+func (mPS *MockProductService) Create(name string, price float32) (domain.IProduct, error) {
+	args := mPS.Called(0)
+
+	product := args.Get(0).(domain.IProduct)
+
+	return product, args.Error(1)
+}
+
+func (mPS *MockProductService) Disable(product domain.IProduct) error {
+	args := mPS.Called(0)
+	return args.Error(0)
+}
+
+func (mPS *MockProductService) Enable(product domain.IProduct) error {
+	args := mPS.Called(0)
+	return args.Error(0)
+}
