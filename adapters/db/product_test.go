@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	adapters "github.com/brenoxavier48/POC---Hexagonal-Design/adapters/db"
 	"github.com/brenoxavier48/POC---Hexagonal-Design/application/domain"
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
@@ -60,7 +61,7 @@ func TestProductDB_Get(t *testing.T) {
 
 			id := uuid.New().String()
 			returnedProduct, expectedErr := tt.setupMock(mock, id)
-			repository := NewProductDBSQLite(db)
+			repository := adapters.NewProductDBSQLite(db)
 
 			product, err := repository.Get(id)
 			if expectedErr != nil {
