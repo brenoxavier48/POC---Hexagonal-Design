@@ -27,7 +27,7 @@ type MockProductService struct {
 }
 
 func (mPS *MockProductService) Get(id string) (domain.IProduct, error) {
-	args := mPS.Called(0)
+	args := mPS.Called(id)
 
 	product, _ := args.Get(0).(domain.IProduct)
 
@@ -35,19 +35,19 @@ func (mPS *MockProductService) Get(id string) (domain.IProduct, error) {
 }
 
 func (mPS *MockProductService) Create(name string, price float32) (domain.IProduct, error) {
-	args := mPS.Called(0)
+	args := mPS.Called(name, price)
 
-	product := args.Get(0).(domain.IProduct)
+	product, _ := args.Get(0).(domain.IProduct)
 
 	return product, args.Error(1)
 }
 
 func (mPS *MockProductService) Disable(product domain.IProduct) error {
-	args := mPS.Called(0)
+	args := mPS.Called(product)
 	return args.Error(0)
 }
 
 func (mPS *MockProductService) Enable(product domain.IProduct) error {
-	args := mPS.Called(0)
+	args := mPS.Called(product)
 	return args.Error(0)
 }
